@@ -32,8 +32,8 @@
 
 #pragma mark - Shape Logic -
 
-#define SHAPE_HSCALE_FACTOR 0.20
-#define SHAPE_VSCALE_FACTOR 0.80
+#define SHAPE_H_PERCENTAGE 0.20
+#define SHAPE_V_PERCENTAGE 0.80
 #define SHAPE_BORDER_HOFFSET_PERCENTAGE 0.125
 #define SHAPE_BORDER_VOFFSET_PERCENTAGE 0.100
 #define SHAPE_INTERNAL_HOFFSET_PERCENTAGE 0.075
@@ -41,9 +41,12 @@
 - (void)drawShapes
 {
     // make rect for center rec (used as base for drawing other shapes)
+    NSLog(@"SET CARD");
+    NSLog(@"origin: (%0g, %0g)",self.bounds.origin.x, self.bounds.origin.y);
+    NSLog(@"wXh: %0g X %0g", self.bounds.size.width , self.bounds.size.height);
     CGRect centerRect = CGRectInset(self.bounds,
-                                    self.bounds.size.width * SHAPE_HSCALE_FACTOR,
-                                    self.bounds.size.height * SHAPE_VSCALE_FACTOR);
+                                    self.bounds.size.width * (SHAPE_BORDER_HOFFSET_PERCENTAGE + SHAPE_H_PERCENTAGE + SHAPE_INTERNAL_HOFFSET_PERCENTAGE),
+                                    self.bounds.size.height * SHAPE_BORDER_VOFFSET_PERCENTAGE);
     
     if (self.number != 2) {
         //draw middle one  (i.e. number == 1,3)
@@ -51,24 +54,24 @@
         if (self.number == 3) {
             // offset left and draw left
             CGRect leftRect = CGRectOffset(centerRect,
-                                           -self.bounds.size.width * (SHAPE_HSCALE_FACTOR + SHAPE_INTERNAL_HOFFSET_PERCENTAGE),
+                                           -self.bounds.size.width * (SHAPE_H_PERCENTAGE + SHAPE_INTERNAL_HOFFSET_PERCENTAGE),
                                            0);
             [self drawShapeInRect:leftRect];
             // offset right and draw right
             CGRect rightRect = CGRectOffset(centerRect,
-                                           self.bounds.size.width * (SHAPE_HSCALE_FACTOR + SHAPE_INTERNAL_HOFFSET_PERCENTAGE),
+                                           self.bounds.size.width * (SHAPE_H_PERCENTAGE + SHAPE_INTERNAL_HOFFSET_PERCENTAGE),
                                            0);
             [self drawShapeInRect:rightRect];
         }
     } else if (self.number == 2) {
         // offset a bit from corner and draw left
         CGRect leftRect = CGRectOffset(centerRect,
-                                       -self.bounds.size.width * (SHAPE_HSCALE_FACTOR + SHAPE_INTERNAL_HOFFSET_PERCENTAGE) / 2.0,
+                                       -self.bounds.size.width * (SHAPE_H_PERCENTAGE + SHAPE_INTERNAL_HOFFSET_PERCENTAGE) / 2.0,
                                        0);
         [self drawShapeInRect:leftRect];
         // scoot and draw right
         CGRect rightRect = CGRectOffset(leftRect,
-                                        self.bounds.size.width * (SHAPE_HSCALE_FACTOR + SHAPE_INTERNAL_HOFFSET_PERCENTAGE),
+                                        self.bounds.size.width * (SHAPE_H_PERCENTAGE + SHAPE_INTERNAL_HOFFSET_PERCENTAGE),
                                         0);
         [self drawShapeInRect:rightRect];
     }
@@ -110,7 +113,29 @@
 
 - (void)drawDiamond:(CGRect)rect
 {
+    UIBezierPath *diamond = [UIBezierPath bezierPath];
     
+    // Set the starting point of the shape.
+    [diamond moveToPoint:CGPointMake(rect.origin.x + rect.size.width/2, rect.origin.y)];
+    
+    // Draw the lines.
+    [diamond addLineToPoint:CGPointMake(rect.origin.x + rect.size.width, rect.origin.y + rect.size.height/2)];
+    [diamond addLineToPoint:CGPointMake(rect.origin.x + rect.size.width/2, rect.origin.y + rect.size.height)];
+    [diamond addLineToPoint:CGPointMake(rect.origin.x, rect.origin.y + rect.size.height/2)];
+    [diamond closePath];
+    
+    [self pushContext];
+    
+    [diamond addClip];
+    [[self renderColor] setFill];
+    [[self renderColor] setStroke];
+    diamond.lineWidth = 4.0;
+    
+    [diamond stroke];
+    
+    [self shade:diamond];
+    
+    [self popContext];
 }
 
 - (void)drawOval:(CGRect)rect
@@ -121,6 +146,59 @@
 - (void)drawSquiggle:(CGRect)rect
 {
     
+}
+
+- (void)pushContext
+{
+    CGContextSaveGState(UIGraphicsGetCurrentContext());
+}
+
+- (void)popContext
+{
+    CGContextRestoreGState(UIGraphicsGetCurrentContext());
+}
+
+- (void)shade:(UIBezierPath *)shape
+{
+    [self pushContext];
+    switch(self.shading) {
+        case 1:
+            // open fill do nothing
+            break;
+        case 2:
+            [self fillBezier:shape withHorizontalLineSpacing:.03];
+            break;
+        case 3:
+            // solid fill
+            break;
+        default:
+            // open fill do nothing
+            break;
+    }
+    [self popContext];
+}
+
+- (void)fillBezier:(UIBezierPath *)shape withHorizontalLineSpacing:(float)percentage
+{
+    [self pushContext];         // save current state
+    
+    shape.lineWidth = shape.lineWidth/5;
+    
+    int stepSize = (int) shape.bounds.size.height * .05;
+    
+    [shape addClip];            // only fill space within shape with lines
+    if (percentage > 0 && percentage < 1.0) {
+        stepSize = (int) shape.bounds.size.height * percentage;
+    }
+    
+    for (int y = 0; y < shape.bounds.size.height; y += stepSize) {
+        [shape moveToPoint:CGPointMake(0, y)];
+        [shape addLineToPoint:CGPointMake(shape.bounds.size.width, y)];
+    }
+    
+    [shape stroke];
+    
+    [self popContext];          // return everything to normal
 }
 
 #pragma mark - Setters -
