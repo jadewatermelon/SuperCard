@@ -41,7 +41,6 @@
 {
     _playingCardView = playingCardView;
     [self drawRandomPlayingCard];
-    [playingCardView addGestureRecognizer:[[UIPinchGestureRecognizer alloc] initWithTarget:playingCardView action:@selector(pinch:)]];
 }
 
 - (void)setSetCardView:(SetCardView *)setCardView

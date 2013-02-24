@@ -23,16 +23,7 @@
 #define PIP_VOFFSET2_PERCENTAGE 0.175
 #define PIP_VOFFSET3_PERCENTAGE 0.270
 
-#define DEFAULT_FACE_CARD_SCALE_FACTOR 0.90
-
-- (void)pinch:(UIPinchGestureRecognizer *)gesture
-{
-    if ((gesture.state == UIGestureRecognizerStateChanged) ||
-        (gesture.state == UIGestureRecognizerStateEnded)) {
-        self.faceCardScaleFactor *= gesture.scale;
-        gesture.scale = 1;
-    }
-}
+#define DEFAULT_FACE_CARD_SCALE_FACTOR 0.85
 
 - (void)drawRect:(CGRect)rect
 {
