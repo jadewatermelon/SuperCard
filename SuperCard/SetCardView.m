@@ -37,6 +37,7 @@
 #define SHAPE_BORDER_HOFFSET_PERCENTAGE 0.125
 #define SHAPE_BORDER_VOFFSET_PERCENTAGE 0.100
 #define SHAPE_INTERNAL_HOFFSET_PERCENTAGE 0.075
+#define OVAL_SCALE_FACTOR 0.25
 
 - (void)drawShapes
 {
@@ -139,7 +140,39 @@
 
 - (void)drawOval:(CGRect)rect
 {
+    UIBezierPath *oval = [UIBezierPath bezierPath];
     
+    // draw top arc
+    [oval appendPath:[UIBezierPath bezierPathWithArcCenter:CGPointMake(rect.origin.x + rect.size.width / 2, rect.origin.y + rect.size.height * OVAL_SCALE_FACTOR)
+                                                    radius:rect.size.width / 2
+                                                startAngle:M_PI
+                                                  endAngle:0
+                                                 clockwise:YES]];
+    // draw right side
+    [oval addLineToPoint:CGPointMake(rect.origin.x + rect.size.width, rect.origin.y + rect.size.height * (1 - OVAL_SCALE_FACTOR))];
+    // draw bottom arc
+    [oval appendPath:[UIBezierPath bezierPathWithArcCenter:CGPointMake(rect.origin.x + rect.size.width / 2, rect.origin.y + rect.size.height * (1 - OVAL_SCALE_FACTOR))
+                                                    radius:rect.size.width / 2
+                                                startAngle:0
+                                                  endAngle:M_PI
+                                                 clockwise:YES]];
+    // close path by drawing the left side
+    [oval addLineToPoint:CGPointMake(rect.origin.x, rect.origin.y + rect.size.height * OVAL_SCALE_FACTOR)];
+        
+    [self pushContext];
+    
+    [oval addClip];
+    
+    [[UIColor whiteColor] setFill];
+    [[self renderColor] setStroke];
+    oval.lineWidth = 4.0;
+    
+    [oval fill];
+    [oval stroke];
+    
+    [self shade:oval];
+    
+    [self popContext];
 }
 
 - (void)drawSquiggle:(CGRect)rect

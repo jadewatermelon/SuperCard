@@ -66,9 +66,9 @@
         SetCard *setCard = (SetCard *)card;
         self.setCardView.number = setCard.number;
         self.setCardView.number = arc4random() % 3 + 1;
-        self.setCardView.symbol = 1;//setCard.symbol;
-        self.setCardView.shading = arc4random() % 3 + 1;;//setCard.shading;
-        self.setCardView.color = 1;//setCard.color;
+        self.setCardView.symbol = arc4random() % 2 + 1;//setCard.symbol;
+        self.setCardView.shading = arc4random() % 3 + 1;//setCard.shading;
+        self.setCardView.color = arc4random() % 3 + 1;//setCard.color;
     }
 }
 
