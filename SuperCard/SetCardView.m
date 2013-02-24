@@ -32,41 +32,62 @@
 
 #pragma mark - Shape Logic -
 
+#define SHAPE_HSCALE_FACTOR 0.20
+#define SHAPE_VSCALE_FACTOR 0.80
+#define SHAPE_BORDER_HOFFSET_PERCENTAGE 0.125
+#define SHAPE_BORDER_VOFFSET_PERCENTAGE 0.100
+#define SHAPE_INTERNAL_HOFFSET_PERCENTAGE 0.075
+
 - (void)drawShapes
 {
-    // make rect to draw shape in
+    // make rect for center rec (used as base for drawing other shapes)
+    CGRect centerRect = CGRectInset(self.bounds,
+                                    self.bounds.size.width * SHAPE_HSCALE_FACTOR,
+                                    self.bounds.size.height * SHAPE_VSCALE_FACTOR);
     
     if (self.number != 2) {
         //draw middle one  (i.e. number == 1,3)
-        [self drawShape];
+        [self drawShapeInRect:centerRect];
         if (self.number == 3) {
             // offset left and draw left
-            [self drawShape];
+            CGRect leftRect = CGRectOffset(centerRect,
+                                           -self.bounds.size.width * (SHAPE_HSCALE_FACTOR + SHAPE_INTERNAL_HOFFSET_PERCENTAGE),
+                                           0);
+            [self drawShapeInRect:leftRect];
             // offset right and draw right
-            [self drawShape];
+            CGRect rightRect = CGRectOffset(centerRect,
+                                           self.bounds.size.width * (SHAPE_HSCALE_FACTOR + SHAPE_INTERNAL_HOFFSET_PERCENTAGE),
+                                           0);
+            [self drawShapeInRect:rightRect];
         }
     } else if (self.number == 2) {
         // offset a bit from corner and draw left
-        [self drawShape];
+        CGRect leftRect = CGRectOffset(centerRect,
+                                       -self.bounds.size.width * (SHAPE_HSCALE_FACTOR + SHAPE_INTERNAL_HOFFSET_PERCENTAGE) / 2.0,
+                                       0);
+        [self drawShapeInRect:leftRect];
         // scoot and draw right
-        [self drawShape];
+        CGRect rightRect = CGRectOffset(leftRect,
+                                        self.bounds.size.width * (SHAPE_HSCALE_FACTOR + SHAPE_INTERNAL_HOFFSET_PERCENTAGE),
+                                        0);
+        [self drawShapeInRect:rightRect];
     }
 }
 
-- (void)drawShape
+- (void)drawShapeInRect:(CGRect)rect
 {
     switch(self.symbol) {
         case 1:
-            [self drawDiamond];
+            [self drawDiamond:rect];
             break;
         case 2:
-            [self drawOval];
+            [self drawOval:rect];
             break;
         case 3:
-            [self drawSquiggle];
+            [self drawSquiggle:rect];
             break;
         default:
-            [self drawDiamond];
+            [self drawDiamond:rect];
             break;
     }
 }
@@ -87,17 +108,17 @@
 
 #pragma mark - Shape Implementation -
 
-- (void)drawDiamond
+- (void)drawDiamond:(CGRect)rect
 {
     
 }
 
-- (void)drawOval
+- (void)drawOval:(CGRect)rect
 {
     
 }
 
-- (void)drawSquiggle
+- (void)drawSquiggle:(CGRect)rect
 {
     
 }
