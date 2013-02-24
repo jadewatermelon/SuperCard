@@ -66,10 +66,35 @@
     if ([card isKindOfClass:[SetCard class]]) {
         SetCard *setCard = (SetCard *)card;
         self.setCardView.number = setCard.number;
-        self.setCardView.number = 1;
+        self.setCardView.number = arc4random() % 3 + 1;
         self.setCardView.symbol = 1;//setCard.symbol;
-        self.setCardView.shading = 1;//setCard.shading;
+        self.setCardView.shading = arc4random() % 3 + 1;;//setCard.shading;
         self.setCardView.color = 1;//setCard.color;
+    }
+}
+
+- (IBAction)tap:(UITapGestureRecognizer *)sender
+{
+    CGPoint locationInView = [sender locationInView:self.view];
+    
+    if (CGRectContainsPoint(self.setCardView.frame, locationInView)) {
+        [UIView transitionWithView:self.setCardView
+                          duration:0.5
+                           options:UIViewAnimationOptionTransitionCurlUp
+                        animations:^{
+                            if (self.setCardView.faceUp)
+                                [self drawRandomSetCard];
+                            self.setCardView.faceUp = !self.setCardView.faceUp;
+                        }completion:NULL];
+    } else if (CGRectContainsPoint(self.playingCardView.frame, locationInView)) {
+        [UIView transitionWithView:self.playingCardView
+                          duration:0.5
+                           options:UIViewAnimationOptionTransitionCrossDissolve
+                        animations:^{
+                            if (!self.playingCardView.faceUp)
+                                [self drawRandomPlayingCard];
+                            self.playingCardView.faceUp = !self.playingCardView.faceUp;
+                        }completion:NULL];
     }
 }
 
