@@ -30,9 +30,45 @@
     [self drawShapes];
 }
 
+#pragma mark - Shape Logic -
+
 - (void)drawShapes
 {
+    // make rect to draw shape in
+    
+    if (self.number != 2) {
+        //draw middle one  (i.e. number == 1,3)
+        [self drawShape];
+        if (self.number == 3) {
+            // offset left and draw left
+            [self drawShape];
+            // offset right and draw right
+            [self drawShape];
+        }
+    } else if (self.number == 2) {
+        // offset a bit from corner and draw left
+        [self drawShape];
+        // scoot and draw right
+        [self drawShape];
+    }
+}
 
+- (void)drawShape
+{
+    switch(self.symbol) {
+        case 1:
+            [self drawDiamond];
+            break;
+        case 2:
+            [self drawOval];
+            break;
+        case 3:
+            [self drawSquiggle];
+            break;
+        default:
+            [self drawDiamond];
+            break;
+    }
 }
 
 - (UIColor *)renderColor
@@ -47,6 +83,23 @@
         default:            // problem if we are ever here
             return [UIColor blackColor];
     }
+}
+
+#pragma mark - Shape Implementation -
+
+- (void)drawDiamond
+{
+    
+}
+
+- (void)drawOval
+{
+    
+}
+
+- (void)drawSquiggle
+{
+    
 }
 
 #pragma mark - Setters -
