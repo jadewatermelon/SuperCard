@@ -41,9 +41,6 @@
 - (void)drawShapes
 {
     // make rect for center rec (used as base for drawing other shapes)
-    NSLog(@"SET CARD");
-    NSLog(@"origin: (%0g, %0g)",self.bounds.origin.x, self.bounds.origin.y);
-    NSLog(@"wXh: %0g X %0g", self.bounds.size.width , self.bounds.size.height);
     CGRect centerRect = CGRectInset(self.bounds,
                                     self.bounds.size.width * (SHAPE_BORDER_HOFFSET_PERCENTAGE + SHAPE_H_PERCENTAGE + SHAPE_INTERNAL_HOFFSET_PERCENTAGE),
                                     self.bounds.size.height * SHAPE_BORDER_VOFFSET_PERCENTAGE);
@@ -127,10 +124,12 @@
     [self pushContext];
     
     [diamond addClip];
-    [[self renderColor] setFill];
+    
+    [[UIColor whiteColor] setFill];
     [[self renderColor] setStroke];
     diamond.lineWidth = 4.0;
     
+    [diamond fill];
     [diamond stroke];
     
     [self shade:diamond];
@@ -162,14 +161,14 @@
 {
     [self pushContext];
     switch(self.shading) {
-        case 1:
-            // open fill do nothing
+        case 1: // open fill done by default
             break;
-        case 2:
+        case 2: // striped fill
             [self fillBezier:shape withHorizontalLineSpacing:.03];
             break;
-        case 3:
-            // solid fill
+        case 3: // solid fill
+            [[self renderColor] setFill];
+            [shape fill];
             break;
         default:
             // open fill do nothing
