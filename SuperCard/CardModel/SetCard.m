@@ -11,34 +11,32 @@
 @implementation SetCard
 
 #define MATCHSCORE 10
+#define CARDS_IN_A_SET 3
 
 - (int)match:(NSArray *)otherCards
 {
     int score = 0;
-    if ([otherCards count] ==2) {
-        NSMutableArray *cards = [[NSMutableArray alloc] initWithArray:otherCards];
-        [cards addObject:self];
-        
-        NSCountedSet *features = [[NSCountedSet alloc] init];
-        
-        for (id obj in cards) {
+    int numberMatches  = self.number;
+    int symbolMatches  = self.symbol;
+    int shadingMatches = self.shading;
+    int colorMatches   = self.shading;
+    
+    if ([otherCards count] == 2) {
+        for (id obj in otherCards) {
             if ([obj isKindOfClass:[SetCard class]]) {
-                SetCard *card = (SetCard *)obj;
-                [features addObject:@(card.number)];
-                [features addObject:card.symbol];
-                [features addObject:card.shading];
-                [features addObject:card.color];
+                SetCard *setCard = (SetCard *)obj;
+                
+                numberMatches  += setCard.number;
+                symbolMatches  += setCard.symbol;
+                shadingMatches += setCard.shading;
+                colorMatches   += setCard.color;
             }
         }
-        for (id feature in features) {
-            // if any feature is present twice then there is no set
-            if ([features countForObject:feature] == 2) {
-                score = 0;
-                break;
-            }
-            else
-                score = MATCHSCORE;
-        }
+        if ((numberMatches  % CARDS_IN_A_SET == 0) &&
+            (symbolMatches  % CARDS_IN_A_SET == 0) &&
+            (shadingMatches % CARDS_IN_A_SET == 0) &&
+            (colorMatches   % CARDS_IN_A_SET == 0))
+            score = MATCHSCORE;
     }
     
     return score;
@@ -46,17 +44,13 @@
 
 - (NSString *)contents
 {
-    return [[SetCard numberStrings][self.number] stringByAppendingFormat:@"%@%@%@",self.shading,self.color,self.symbol];
+    return [NSString stringWithFormat:@"%d.%d.%d.%d",self.number,self.shading,self.color,self.symbol];
 }
 
 - (NSString *)description
 {
     return [self contents];
 }
-
-@synthesize symbol = _symbol;
-@synthesize shading = _shading;
-@synthesize color = _color;
 
 + (NSArray *)numberStrings
 {
@@ -68,152 +62,29 @@
     return [[self numberStrings] count] - 1;
 }
 
-+ (NSArray *)validSymbols
+- (void)setNumber:(NSUInteger)number
 {
-    return @[@"■",@"▲",@"●"];
+    if (number <= [SetCard maxNumber]) {
+        _number = number;
+    }
 }
 
-- (void)setSymbol:(NSString *)symbol
+- (void)setSymbol:(NSUInteger)symbol
 {
-    if ([[SetCard validSymbols] containsObject:symbol])
+    if (symbol <= [SetCard maxNumber])
         _symbol = symbol;
 }
 
-- (NSString *)symbol
+- (void)setShading:(NSUInteger)shading
 {
-    return _symbol ? _symbol : @"?";
-}
-
-+ (NSArray *)validShadings
-{
-    return @[@"solid",@"striped",@"open"];
-}
-
-- (void)setShading:(NSString *)shading
-{
-    if ([[SetCard validShadings] containsObject:shading])
+    if (shading <= [SetCard maxNumber])
         _shading = shading;
 }
 
-- (NSString *)shading
+- (void)setColor:(NSUInteger)color
 {
-    return _shading ? _shading : @"?";
-}
-
-+ (NSArray *)validColors
-{
-    return @[@"red",@"green",@"purple"];
-}
-
-- (void)setColor:(NSString *)color
-{
-    if ([[SetCard validColors] containsObject:color])
+    if (color <= [SetCard maxNumber])
          _color = color;
 }
 
-- (NSString *)color
-{
-    return _color ? _color : @"?";
-}
-
 @end
-
-/* // first very impracticle implementation of match before learning about NSCountedSet
- - (int)match:(NSArray *)otherCards
- {
- int score = 0;
- if ([otherCards count] == 2)
- {
- NSMutableArray *numbers = [[NSMutableArray alloc] initWithArray:@[[NSNumber numberWithInteger:self.number]]];
- NSMutableArray *symbols = [[NSMutableArray alloc] initWithArray:@[self.symbol]];
- NSMutableArray *shadings = [[NSMutableArray alloc] initWithArray:@[self.shading]];
- NSMutableArray *colors = [[NSMutableArray alloc] initWithArray:@[self.color]];
- 
- for (id otherCard in otherCards) {
- if ([otherCard isKindOfClass:[SetCard class]]) {
- SetCard *otherSetCard = (SetCard *)otherCard;
- [numbers addObject:[NSNumber numberWithInteger:otherSetCard.number]];
- [symbols addObject:otherSetCard.symbol];
- [shadings addObject:otherSetCard.shading];
- [colors addObject:otherSetCard.color];
- }
- }
- 
- if (([SetCard allEqual:numbers] || [SetCard allDifferent:numbers]) &&
- ([SetCard allEqual:symbols] || [SetCard allDifferent:symbols]) &&
- ([SetCard allEqual:shadings] || [SetCard allDifferent:shadings]) &&
- ([SetCard allEqual:colors] || [SetCard allDifferent:colors])) {
- score = MATCHSCORE;
- }
- }
- 
- return score;
- }
- 
- + (BOOL)allEqual:(NSArray *)features
- // input will either be an array of only numbers or only strings
- {
- BOOL result = NO;
- if ([features count] == 3) {
- switch ([self arrayCheck:features]) {
- case 1: // all ints
- result = features[0] == features[1] && features[0] == features[2];
- break;
- case 2: // all strings
- result = [features[0] isEqualToString:features[1]] && [features[0] isEqualToString:features[2]];
- break;
- default:
- break;
- }
- }
- 
- return result;
- }
- 
- + (BOOL)allDifferent:(NSArray *)features
- // input will either be an array of only numbers or only strings
- {
- BOOL result = NO;
- if ([features count] == 3) {
- switch ([self arrayCheck:features]) {
- case 1: // all ints
- result = features[0] != features[1] && features[0] != features[2] && features[1] != features[2];
- break;
- case 2: // all strings
- result = ![features[0] isEqualToString:features[1]] && ![features[0] isEqualToString:features[2]] && ![features[1] isEqualToString:features[2]];
- break;
- default:
- break;
- }
- }
- 
- return result;
- }
- 
- + (NSInteger)arrayCheck:(NSArray *)features
- // returns 1 if input array is all numbers
- // returns 2 if input array is all strings
- // returns 0 otherwise
- {
- BOOL numbers = YES;
- BOOL strings = YES;
- NSInteger result = 0;
- 
- for (id feature in features) {
- if ([feature isKindOfClass:[NSNumber class]] && numbers) {
- strings = NO;
- } else if ([feature isKindOfClass:[NSString class]] && strings) {
- numbers = NO;
- } else {
- return result;
- }
- }
- 
- if (numbers)
- result = 1;
- else if (strings)
- result = 2;
- 
- return result;
- }
- */
