@@ -45,7 +45,7 @@
 #define OVAL_HSCALE_FACTOR 0.25
 #define SQUIGGLE_HSCALE_FACTOR 0.15
 #define SQUIGGLE_VSCALE_FACTOR 0.10
-#define SHADING_STRIPED_LINE_WIDTH_DEFAULT 0.07
+#define SHADING_STRIPED_LINE_WIDTH_DEFAULT 0.04
 
 - (void)drawShapes
 {
@@ -267,7 +267,7 @@
         case 1: // open fill done by default
             break;
         case 2: // striped fill
-            [self fillBezier:shape withHorizontalLineSpacing:SHADING_STRIPED_LINE_WIDTH_DEFAULT];
+            [self fillBezier:shape withVerticalLineSpacing:SHADING_STRIPED_LINE_WIDTH_DEFAULT];
             break;
         case 3: // solid fill
             [[self renderColor] setFill];
@@ -286,7 +286,7 @@
     
     shape.lineWidth = shape.lineWidth/5;
     
-    int stepSize = (int) shape.bounds.size.height * SHADING_STRIPED_LINE_WIDTH_DEFAULT;
+    int stepSize = (int) shape.bounds.size.height * SHADING_STRIPED_LINE_WIDTH_DEFAULT * 2;
     
     [shape addClip];            // only fill space within shape with lines
     if (percentage > 0 && percentage < 1.0) {
@@ -296,6 +296,29 @@
     for (int y = 0; y < shape.bounds.size.height; y += stepSize) {
         [shape moveToPoint:CGPointMake(0, y)];
         [shape addLineToPoint:CGPointMake(shape.bounds.size.width, y)];
+    }
+    
+    [shape stroke];
+    
+    [self popContext];          // return everything to normal
+}
+
+- (void)fillBezier:(UIBezierPath *)shape withVerticalLineSpacing:(float)percentage
+{
+    [self pushContext];         // save current state
+    
+    shape.lineWidth = shape.lineWidth/5;
+    
+    int stepSize = (int) shape.bounds.size.width * SHADING_STRIPED_LINE_WIDTH_DEFAULT;
+    
+    [shape addClip];            // only fill space within shape with lines
+    if (percentage > 0 && percentage < 1.0) {
+        stepSize = (int) shape.bounds.size.width * percentage;
+    }
+    
+    for (int x = 0; x < shape.bounds.size.width; x += stepSize) {
+        [shape moveToPoint:CGPointMake(x, 0)];
+        [shape addLineToPoint:CGPointMake(x, shape.bounds.size.height)];
     }
     
     [shape stroke];
