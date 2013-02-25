@@ -5,6 +5,9 @@
 //  Created by Tom Billings on 17/2/2013.
 //  Copyright (c) 2013 Tom Billings. All rights reserved.
 //
+//  - (void)drawSquiggle:(CGRect)rect internals were inspired by Dominic Heale
+//      - the original code can be found on his github at -- https://github.com/dheale
+//
 
 #import "SetCardView.h"
 
@@ -41,7 +44,8 @@
 #define DIAMOND_HSCALE_FACTOR 0.10
 #define OVAL_HSCALE_FACTOR 0.25
 #define SQUIGGLE_HSCALE_FACTOR 0.15
-#define SHADING_STRIPED_LINE_WIDTH_DEFAULT 0.10
+#define SQUIGGLE_VSCALE_FACTOR 0.10
+#define SHADING_STRIPED_LINE_WIDTH_DEFAULT 0.08
 
 - (void)drawShapes
 {
@@ -182,6 +186,53 @@
 - (void)drawSquiggle:(CGRect)rect
 {
     UIBezierPath *squiggle = [UIBezierPath bezierPath];
+    
+    // p1, p2, p3, p4 form a parallogram on the border of the input rect.  they act as the anchor points for the four
+    // bezier curves that will comprise a squiggle
+    
+    CGPoint p1, p2, p3, p4;
+    p1 = CGPointMake(rect.origin.x + rect.size.width * SQUIGGLE_HSCALE_FACTOR, rect.origin.y + rect.size.height * SQUIGGLE_VSCALE_FACTOR);
+    p2 = CGPointMake(rect.origin.x + rect.size.width * (1 - SQUIGGLE_HSCALE_FACTOR * 2), rect.origin.y + rect.size.height * SQUIGGLE_VSCALE_FACTOR);
+    p3 = CGPointMake(rect.origin.x + rect.size.width * (1 - SQUIGGLE_HSCALE_FACTOR), rect.origin.y + rect.size.height * (1 - SQUIGGLE_VSCALE_FACTOR));
+    p4 = CGPointMake(rect.origin.x + rect.size.width * SQUIGGLE_HSCALE_FACTOR * 2, rect.origin.y + rect.size.height * (1 - SQUIGGLE_VSCALE_FACTOR));
+    
+    CGFloat controlPointOffset = rect.size.width * SQUIGGLE_HSCALE_FACTOR;
+    
+    // dheale found a working solution with all control points being offset by 45 degrees which means that the x
+    // and y offsets are equal.  now we just have two types of curves:
+    //      - horizontal waves
+    //      - vertical ends
+    
+    // horizontal wave: the control points for p1 is 45 degrees right and above p1
+    // horizontal wave: the control points for p2 is 45 degrees left  and below p2
+    
+    // vertical end:    the control points for p2 is 45 degrees right and above p2
+    // vertical end:    the control points for p3 is 45 degrees right and above p3
+    
+    // horizontal wave: the control points for p3 is 45 degrees left  and below p3
+    // horizontal wave: the control points for p4 is 45 degrees right and above p4
+    
+    // vertical end:    the control points for p4 is 45 degrees left  and below p4
+    // vertical end:    the control points for p1 is 45 degrees left  and below p1
+
+    [squiggle moveToPoint:p1];
+    // horizontal wave from p1 to p2
+    [squiggle addCurveToPoint:p2
+                controlPoint1:CGPointMake(p1.x + controlPointOffset, p1.y - controlPointOffset)
+                controlPoint2:CGPointMake(p2.x - controlPointOffset, p2.y + controlPointOffset)];
+    // vertical end from p2 to p3
+    [squiggle addCurveToPoint:p3
+                controlPoint1:CGPointMake(p2.x + controlPointOffset, p2.y - controlPointOffset)
+                controlPoint2:CGPointMake(p3.x + controlPointOffset, p3.y - controlPointOffset)];
+    // horizontal wave from p3 to p4
+    [squiggle addCurveToPoint:p4
+                controlPoint1:CGPointMake(p3.x - controlPointOffset, p3.y + controlPointOffset)
+                controlPoint2:CGPointMake(p4.x + controlPointOffset, p4.y - controlPointOffset)];
+    // vertical end from p4 to p1
+    [squiggle addCurveToPoint:p1
+                controlPoint1:CGPointMake(p4.x - controlPointOffset, p4.y + controlPointOffset)
+                controlPoint2:CGPointMake(p1.x - controlPointOffset, p1.y + controlPointOffset)];
+    [squiggle closePath];
     
     [self pushContext];
     
