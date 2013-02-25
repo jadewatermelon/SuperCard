@@ -45,7 +45,7 @@
 #define OVAL_HSCALE_FACTOR 0.25
 #define SQUIGGLE_HSCALE_FACTOR 0.15
 #define SQUIGGLE_VSCALE_FACTOR 0.10
-#define SHADING_STRIPED_LINE_WIDTH_DEFAULT 0.08
+#define SHADING_STRIPED_LINE_WIDTH_DEFAULT 0.07
 
 - (void)drawShapes
 {
@@ -105,11 +105,11 @@
 {
     switch(self.color) {
         case 1:
-            return [UIColor redColor];
+            return [UIColor colorWithRed:1.00 green:0.10 blue:0.07 alpha:1.00];
         case 2:
-            return [UIColor greenColor];
+            return [UIColor colorWithRed:0.00 green:0.84 blue:0.32 alpha:1.00];
         case 3:
-            return [UIColor purpleColor];
+            return [UIColor colorWithRed:0.42 green:0.15 blue:0.79 alpha:1.00];
         default:            // problem if we are ever here
             return [UIColor blackColor];
     }
