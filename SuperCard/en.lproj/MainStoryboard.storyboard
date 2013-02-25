@@ -30,14 +30,14 @@
                         <color key="backgroundColor" red="0.20000000000000001" green="0.59999999999999998" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <gestureRecognizers/>
                         <constraints>
-                            <constraint firstItem="Rct-6f-YDK" firstAttribute="leading" secondItem="3" secondAttribute="leading" constant="35" id="3e8-DV-3p3"/>
-                            <constraint firstAttribute="bottom" secondItem="Rct-6f-YDK" secondAttribute="bottom" constant="20" symbolic="YES" type="default" id="Hiy-xD-WSz"/>
-                            <constraint firstItem="Rct-6f-YDK" firstAttribute="top" secondItem="3" secondAttribute="top" constant="284" id="dGf-ka-uhp"/>
-                            <constraint firstItem="n3y-sj-bHo" firstAttribute="centerX" secondItem="Rct-6f-YDK" secondAttribute="centerX" type="default" id="fw1-Un-T9a"/>
-                            <constraint firstAttribute="bottom" secondItem="n3y-sj-bHo" secondAttribute="bottom" constant="197" id="gji-za-lTi"/>
+                            <constraint firstItem="Rct-6f-YDK" firstAttribute="leading" secondItem="n3y-sj-bHo" secondAttribute="leading" type="default" id="2BG-6j-aio"/>
+                            <constraint firstItem="n3y-sj-bHo" firstAttribute="top" secondItem="3" secondAttribute="top" constant="14" id="9vW-M3-uRY"/>
+                            <constraint firstAttribute="bottom" secondItem="Rct-6f-YDK" secondAttribute="bottom" constant="12" id="CD7-BT-39r"/>
+                            <constraint firstItem="Rct-6f-YDK" firstAttribute="trailing" secondItem="n3y-sj-bHo" secondAttribute="trailing" type="default" id="FCE-I4-Xyz"/>
+                            <constraint firstItem="n3y-sj-bHo" firstAttribute="centerX" secondItem="3" secondAttribute="centerX" type="default" id="HSX-oP-NU5"/>
+                            <constraint firstItem="Rct-6f-YDK" firstAttribute="top" secondItem="3" secondAttribute="top" constant="238" id="dRS-qL-Fvc"/>
                             <constraint firstItem="n3y-sj-bHo" firstAttribute="leading" secondItem="3" secondAttribute="leading" constant="70" id="hZr-BK-Dg1"/>
-                            <constraint firstItem="n3y-sj-bHo" firstAttribute="centerX" secondItem="3" secondAttribute="centerX" type="default" id="j86-Dd-8bB"/>
-                            <constraint firstItem="n3y-sj-bHo" firstAttribute="top" secondItem="3" secondAttribute="top" constant="20" symbolic="YES" type="default" id="xRb-8r-HQI"/>
+                            <constraint firstAttribute="bottom" secondItem="n3y-sj-bHo" secondAttribute="bottom" constant="236" id="n2s-j3-9jJ"/>
                         </constraints>
                     </view>
                     <connections>
@@ -60,26 +60,6 @@
             <point key="canvasLocation" x="-140" y="84"/>
         </scene>
     </scenes>
-    <classes>
-        <class className="NSLayoutConstraint" superclassName="NSObject">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>
-        </class>
-        <class className="PlayingCardView" superclassName="UIView">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/PlayingCardView.h"/>
-        </class>
-        <class className="SetCardView" superclassName="UIView">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/SetCardView.h"/>
-        </class>
-        <class className="SuperCardViewController" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/SuperCardViewController.h"/>
-            <relationships>
-                <relationship kind="action" name="swipe:" candidateClass="UISwipeGestureRecognizer"/>
-                <relationship kind="action" name="tap:" candidateClass="UITapGestureRecognizer"/>
-                <relationship kind="outlet" name="playingCardView" candidateClass="PlayingCardView"/>
-                <relationship kind="outlet" name="setCardView" candidateClass="SetCardView"/>
-            </relationships>
-        </class>
-    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

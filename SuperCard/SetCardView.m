@@ -32,46 +32,50 @@
 
 #pragma mark - Shape Logic -
 
-#define SHAPE_H_PERCENTAGE 0.20
-#define SHAPE_V_PERCENTAGE 0.80
-#define SHAPE_BORDER_HOFFSET_PERCENTAGE 0.125
-#define SHAPE_BORDER_VOFFSET_PERCENTAGE 0.100
-#define SHAPE_INTERNAL_HOFFSET_PERCENTAGE 0.075
-#define OVAL_SCALE_FACTOR 0.25
+#define SHAPE_H_PERCENTAGE 0.90                 // not used but equals 1 - 2 * SHAPE_BORDER_HOFFSET_PERCENTAGE
+#define SHAPE_V_PERCENTAGE 0.25                 // 1 = SHAPE_V_PERCENTAGE * 3 + SHAPE_BORDER_VOFFSET_PERCENTAGE * 2 + SHAPE_INTERNAL_VOFFSET_PERCENTAGE * 2
+#define SHAPE_BORDER_HOFFSET_PERCENTAGE 0.05
+#define SHAPE_BORDER_VOFFSET_PERCENTAGE 0.075
+#define SHAPE_INTERNAL_VOFFSET_PERCENTAGE 0.05
+#define SHAPE_LINEWIDTH 4.0
+#define DIAMOND_HSCALE_FACTOR 0.10
+#define OVAL_HSCALE_FACTOR 0.25
+#define SQUIGGLE_HSCALE_FACTOR 0.15
+#define SHADING_STRIPED_LINE_WIDTH_DEFAULT 0.10
 
 - (void)drawShapes
 {
     // make rect for center rec (used as base for drawing other shapes)
     CGRect centerRect = CGRectInset(self.bounds,
-                                    self.bounds.size.width * (SHAPE_BORDER_HOFFSET_PERCENTAGE + SHAPE_H_PERCENTAGE + SHAPE_INTERNAL_HOFFSET_PERCENTAGE),
-                                    self.bounds.size.height * SHAPE_BORDER_VOFFSET_PERCENTAGE);
+                                    self.bounds.size.width * SHAPE_BORDER_HOFFSET_PERCENTAGE,
+                                    self.bounds.size.height * (SHAPE_BORDER_VOFFSET_PERCENTAGE + SHAPE_V_PERCENTAGE + SHAPE_INTERNAL_VOFFSET_PERCENTAGE));
     
     if (self.number != 2) {
         //draw middle one  (i.e. number == 1,3)
         [self drawShapeInRect:centerRect];
         if (self.number == 3) {
-            // offset left and draw left
-            CGRect leftRect = CGRectOffset(centerRect,
-                                           -self.bounds.size.width * (SHAPE_H_PERCENTAGE + SHAPE_INTERNAL_HOFFSET_PERCENTAGE),
-                                           0);
-            [self drawShapeInRect:leftRect];
-            // offset right and draw right
-            CGRect rightRect = CGRectOffset(centerRect,
-                                           self.bounds.size.width * (SHAPE_H_PERCENTAGE + SHAPE_INTERNAL_HOFFSET_PERCENTAGE),
-                                           0);
-            [self drawShapeInRect:rightRect];
+            // offset up and draw top
+            CGRect topRect = CGRectOffset(centerRect,
+                                           0,
+                                           -self.bounds.size.height * (SHAPE_V_PERCENTAGE + SHAPE_INTERNAL_VOFFSET_PERCENTAGE));
+            [self drawShapeInRect:topRect];
+            // offset down and draw bottom
+            CGRect bottomRect = CGRectOffset(centerRect,
+                                             0,
+                                             self.bounds.size.height * (SHAPE_V_PERCENTAGE + SHAPE_INTERNAL_VOFFSET_PERCENTAGE));
+            [self drawShapeInRect:bottomRect];
         }
     } else if (self.number == 2) {
-        // offset a bit from corner and draw left
-        CGRect leftRect = CGRectOffset(centerRect,
-                                       -self.bounds.size.width * (SHAPE_H_PERCENTAGE + SHAPE_INTERNAL_HOFFSET_PERCENTAGE) / 2.0,
-                                       0);
-        [self drawShapeInRect:leftRect];
-        // scoot and draw right
-        CGRect rightRect = CGRectOffset(leftRect,
-                                        self.bounds.size.width * (SHAPE_H_PERCENTAGE + SHAPE_INTERNAL_HOFFSET_PERCENTAGE),
-                                        0);
-        [self drawShapeInRect:rightRect];
+        // offset a bit from corner and draw top
+        CGRect topRect = CGRectOffset(centerRect,
+                                       0,
+                                       -self.bounds.size.height * (SHAPE_V_PERCENTAGE + SHAPE_INTERNAL_VOFFSET_PERCENTAGE) / 2.0);
+        [self drawShapeInRect:topRect];
+        // scoot and draw bottom
+        CGRect bottomRect = CGRectOffset(topRect,
+                                        0,
+                                        self.bounds.size.height * (SHAPE_V_PERCENTAGE + SHAPE_INTERNAL_VOFFSET_PERCENTAGE));
+        [self drawShapeInRect:bottomRect];
     }
 }
 
@@ -117,9 +121,9 @@
     [diamond moveToPoint:CGPointMake(rect.origin.x + rect.size.width/2, rect.origin.y)];
     
     // Draw the lines.
-    [diamond addLineToPoint:CGPointMake(rect.origin.x + rect.size.width, rect.origin.y + rect.size.height/2)];
+    [diamond addLineToPoint:CGPointMake(rect.origin.x + rect.size.width * (1 - DIAMOND_HSCALE_FACTOR), rect.origin.y + rect.size.height/2)];
     [diamond addLineToPoint:CGPointMake(rect.origin.x + rect.size.width/2, rect.origin.y + rect.size.height)];
-    [diamond addLineToPoint:CGPointMake(rect.origin.x, rect.origin.y + rect.size.height/2)];
+    [diamond addLineToPoint:CGPointMake(rect.origin.x + rect.size.width * DIAMOND_HSCALE_FACTOR, rect.origin.y + rect.size.height/2)];
     [diamond closePath];
     
     [self pushContext];
@@ -128,7 +132,7 @@
     
     [[UIColor whiteColor] setFill];
     [[self renderColor] setStroke];
-    diamond.lineWidth = 4.0;
+    diamond.lineWidth = SHAPE_LINEWIDTH;
     
     [diamond fill];
     [diamond stroke];
@@ -141,31 +145,31 @@
 - (void)drawOval:(CGRect)rect
 {
     UIBezierPath *oval = [UIBezierPath bezierPath];
+    // draw top line
+    [oval moveToPoint:CGPointMake(rect.origin.x + rect.size.width * OVAL_HSCALE_FACTOR, rect.origin.y)];
+    [oval addLineToPoint:CGPointMake(rect.origin.x + rect.size.width * (1 - OVAL_HSCALE_FACTOR), rect.origin.y)];
+    // draw right arc
+    [oval addArcWithCenter:CGPointMake(rect.origin.x + rect.size.width * (1 - OVAL_HSCALE_FACTOR), rect.origin.y + rect.size.height / 2)
+                    radius:rect.size.height / 2
+                startAngle:-M_PI_2
+                  endAngle:M_PI_2
+                 clockwise:YES];
+    // draw bottom line
+    [oval addLineToPoint:CGPointMake(rect.origin.x + rect.size.width * OVAL_HSCALE_FACTOR, rect.origin.y + rect.size.height)];
+    // draw left arc
+    [oval addArcWithCenter:CGPointMake(rect.origin.x + rect.size.width * OVAL_HSCALE_FACTOR, rect.origin.y + rect.size.height / 2)
+                    radius:rect.size.height / 2
+                startAngle:M_PI_2
+                  endAngle:-M_PI_2
+                 clockwise:YES];
     
-    // draw top arc
-    [oval appendPath:[UIBezierPath bezierPathWithArcCenter:CGPointMake(rect.origin.x + rect.size.width / 2, rect.origin.y + rect.size.height * OVAL_SCALE_FACTOR)
-                                                    radius:rect.size.width / 2
-                                                startAngle:M_PI
-                                                  endAngle:0
-                                                 clockwise:YES]];
-    // draw right side
-    [oval addLineToPoint:CGPointMake(rect.origin.x + rect.size.width, rect.origin.y + rect.size.height * (1 - OVAL_SCALE_FACTOR))];
-    // draw bottom arc
-    [oval appendPath:[UIBezierPath bezierPathWithArcCenter:CGPointMake(rect.origin.x + rect.size.width / 2, rect.origin.y + rect.size.height * (1 - OVAL_SCALE_FACTOR))
-                                                    radius:rect.size.width / 2
-                                                startAngle:0
-                                                  endAngle:M_PI
-                                                 clockwise:YES]];
-    // close path by drawing the left side
-    [oval addLineToPoint:CGPointMake(rect.origin.x, rect.origin.y + rect.size.height * OVAL_SCALE_FACTOR)];
-        
     [self pushContext];
     
     [oval addClip];
     
     [[UIColor whiteColor] setFill];
     [[self renderColor] setStroke];
-    oval.lineWidth = 4.0;
+    oval.lineWidth = SHAPE_LINEWIDTH;
     
     [oval fill];
     [oval stroke];
@@ -177,7 +181,22 @@
 
 - (void)drawSquiggle:(CGRect)rect
 {
+    UIBezierPath *squiggle = [UIBezierPath bezierPath];
     
+    [self pushContext];
+    
+    [squiggle addClip];
+    
+    [[UIColor whiteColor] setFill];
+    [[self renderColor] setStroke];
+    squiggle.lineWidth = 4.0;
+    
+    [squiggle fill];
+    [squiggle stroke];
+    
+    [self shade:squiggle];
+    
+    [self popContext];
 }
 
 - (void)pushContext
@@ -197,7 +216,7 @@
         case 1: // open fill done by default
             break;
         case 2: // striped fill
-            [self fillBezier:shape withHorizontalLineSpacing:.03];
+            [self fillBezier:shape withHorizontalLineSpacing:SHADING_STRIPED_LINE_WIDTH_DEFAULT];
             break;
         case 3: // solid fill
             [[self renderColor] setFill];
@@ -216,7 +235,7 @@
     
     shape.lineWidth = shape.lineWidth/5;
     
-    int stepSize = (int) shape.bounds.size.height * .05;
+    int stepSize = (int) shape.bounds.size.height * SHADING_STRIPED_LINE_WIDTH_DEFAULT;
     
     [shape addClip];            // only fill space within shape with lines
     if (percentage > 0 && percentage < 1.0) {
